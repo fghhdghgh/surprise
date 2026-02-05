@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surprise ! 💖</title>
+
+<style>
+/* ===== BASE ===== */
+body {
+ margin: 0;
+ height: 100vh;
+ background: #FFA8C8;
+ font-family: Arial, sans-serif;
+ overflow: hidden;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+}
+
+/* ===== CARTE ===== */
+.card {
+ background: white;
+ padding: 40px 25px;
+ border-radius: 25px;
+ text-align: center;
+ box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+ max-width: 90%;
+ z-index: 1; /* au-dessus des cœurs de fond */
+}
+
+/* ===== SCÈNES ===== */
+.scene {
+ display: none;
+}
+.scene.active {
+ display: block;
+}
+
+/* ===== TEXTE ===== */
+h1 {
+ color: #d6336c;
+ font-size: 28px;
+ margin-bottom: 25px;
+}
+p {
+ color: #d6336c;
+ font-size: 20px;
+}
+
+/* ===== BOUTONS ===== */
+button {
+ font-size: 20px;
+ padding: 14px 30px;
+ border: none;
+ border-radius: 16px;
+ cursor: pointer;
+ margin: 10px;
+}
+#yes {
+ background: #ff4d6d;
+ color: white;
+ transition: transform 0.2s ease;
+}
+#no {
+ background: #adb5bd;
+ color: white;
+ position: absolute;
+}
+
+/* ===== FINAL ===== */
+#final {
+ display: none;
+ animation: pop 0.6s ease;
+}
+#final img {
+ width: 260px;
+ border-radius: 20px;
+ margin-top: 20px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pop {
+ from { transform: scale(0); }
+ to { transform: scale(1); }
+}
+
+.heart {
+ position: fixed;
+ font-size: 24px;
+ animation: fall 4s linear;
+ pointer-events: none;
+}
+
+@keyframes fall {
+ from { transform: translateY(-10vh); }
+ to { transform: translateY(110vh); }
+}
+
+/* ===== CŒURS SCINTILLANTS EN FOND ===== */
+#backgroundHearts {
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100vw;
+ height: 100vh;
+ pointer-events: none;
+ overflow: hidden;
+ z-index: 0; /* derrière la carte */
+}
+.bg-heart {
+ position: absolute;
+ color: #fff0f5;
+ font-size: 14px;
+ opacity: 0.8;
+ animation: sparkle 3s infinite;
+}
+@keyframes sparkle {
+ 0% { transform: translateY(0) scale(0.5); opacity: 0; }
+ 50% { opacity: 1; }
+ 100% { transform: translateY(-50px) scale(1); opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- FOND DES CŒURS SCINTILLANTS -->
+<div id="backgroundHearts"></div>
+
+<div class="card">
+
+<!-- INTRO -->
+<div class="scene active" id="intro">
+<h1>Maëlys 💕</h1>
+<p>J’ai une question très très importante…</p>
+</div>
+
+<!-- QUESTION -->
+<div class="scene" id="question">
+<h1 id="title">Veux-tu être ma Valentine ? (et la femme de ma vie hihi) 💘</h1>
+<button id="yes">Oui 💖</button>
+<button id="no">Non 😢</button>
+</div>
+
+<!-- FINAL -->
+<div id="final">
+<p>J’en étais sûr… 🥹<br>Tu me rends super heureux mon amour, merci pour tout ! Je t'aime de tout mon coeur ! 💕<br>J'ai hâte de te revoir et te faire plein de bisous 🥰<br>(le petit panda c'est moi et ces fleurs sont pour toi 😌)</p>
+<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDkxOHgwa2lnMndid29nenU3NHRsYTdiYXcxenptcTJ2azEzeGYxbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/8QbwUh40Hl96yMgvOx/giphy.gif">
+</div>
+
+</div>
+
+<!-- MUSIQUES -->
+<audio id="yesSound" src="https://www.myinstants.com/media/sounds/untitlede42rewrwerwerwe.mp3" preload="auto" loop></audio>
+<audio id="noSound" src="https://www.myinstants.com/media/sounds/haha-nelson.mp3" preload="auto"></audio>
+
+<script>
+/* ===== INTRO ===== */
+setTimeout(() => {
+ document.getElementById("intro").classList.remove("active");
+ document.getElementById("question").classList.add("active");
+}, 7000);
+
+/* ===== LOGIQUE ===== */
+const noBtn = document.getElementById("no");
+const yesBtn = document.getElementById("yes");
+const title = document.getElementById("title");
+const final = document.getElementById("final");
+const yesSound = document.getElementById("yesSound");
+const noSound = document.getElementById("noSound");
+
+let tries = 0;
+
+const phrases = [
+ "Hmm… t’es sûre ? 😳",
+ "Mauvais bouton 😈",
+ "C’était pas celui-là 😌",
+ "Tu forces là 😅",
+ "Non mais vraiment? 🤨",
+ "MAUVAISE RÉPONSE ❌",
+ "C’est truqué (par amour) 💖",
+ "Je le prends mal ☹️",
+ "Impossible techniquement 🤓",
+ "Le bouton ne marche pas 😌",
+ "Là tu abuses Maë! 😪",
+ "Mais??? 😳 ",
+ "Réfléchis encore 😈",
+ "Avoue… tu veux dire oui 💖"
+];
+
+function moveNo() {
+ tries++;
+
+ // jouer le son de Nelson
+ noSound.currentTime = 0;
+ noSound.play().catch(()=>{});
+
+ // récupérer les dimensions du bouton et de la fenêtre
+ const btnWidth = noBtn.offsetWidth;
+ const btnHeight = noBtn.offsetHeight;
+ const maxX = window.innerWidth - btnWidth;
+ const maxY = window.innerHeight - btnHeight;
+
+ // déplacement aléatoire dans toutes les directions, mais reste visible
+ noBtn.style.left = Math.random() * maxX + "px";
+ noBtn.style.top = Math.random() * maxY + "px";
+
+ // texte qui change
+ title.textContent = phrases[Math.min(tries - 1, phrases.length - 1)];
+
+ // bouton oui qui grossit
+ const scale = 1 + tries * 0.12;
+ yesBtn.style.transform = `scale(${scale})`;
+}
+
+noBtn.addEventListener("mouseover", moveNo);
+noBtn.addEventListener("touchstart", moveNo);
+
+/* ===== OUI ===== */
+yesBtn.addEventListener("click", () => {
+ yesSound.currentTime = 0;
+ yesSound.play().catch(()=>{});
+ document.getElementById("question").style.display = "none";
+ final.style.display = "block";
+ rainHearts();
+});
+
+/* ===== COEURS INFINIS ===== */
+function rainHearts() {
+ setInterval(() => {
+   const h = document.createElement("div");
+   h.className = "heart";
+   h.textContent = "❤️🥰❤️";
+   h.style.left = Math.random() * 100 + "vw";
+   h.style.fontSize = (20 + Math.random() * 15) + "px";
+   h.style.animationDuration = (3 + Math.random() * 2) + "s";
+   h.style.pointerEvents = "none";
+   document.body.appendChild(h);
+   setTimeout(() => h.remove(), 5000);
+ }, 250);
+}
+
+/* ===== CŒURS SCINTILLANTS EN FOND ===== */
+function createBackgroundHearts() {
+ const bg = document.getElementById("backgroundHearts");
+ setInterval(() => {
+   const h = document.createElement("div");
+   h.className = "bg-heart";
+   h.textContent = "❤️";
+   h.style.left = Math.random() * 100 + "vw";
+   h.style.top = Math.random() * 100 + "vh";
+   h.style.fontSize = (10 + Math.random() * 10) + "px";
+   h.style.animationDuration = (2 + Math.random() * 2) + "s";
+   bg.appendChild(h);
+   setTimeout(() => h.remove(), 4000);
+ }, 300);
+}
+createBackgroundHearts();
+</script>
+
+</body>
+</html>
